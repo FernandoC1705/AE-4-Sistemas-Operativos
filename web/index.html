@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Simulador de Sistemas Operativos</title>
+<style>.gs{display:grid;grid-template-columns:34px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.gs:last-child{border-bottom:0}.gn{width:30px;height:30px;border-radius:50%;background:var(--acc2);color:var(--acc);font-weight:800;display:flex;align-items:center;justify-content:center}.gs.on .gn{background:var(--acc);color:#fff}.gs .dec{color:var(--mut);font-size:14px;margin-top:2px}
+.more{position:relative}.more summary{list-style:none;display:inline-block}.more summary::-webkit-details-marker{display:none}.pop{position:absolute;right:0;top:40px;background:#fff;border-radius:14px;box-shadow:0 10px 36px rgba(20,30,60,.22);padding:14px;display:grid;gap:12px;z-index:5;min-width:240px}details.det summary{cursor:pointer;color:var(--acc);font-weight:600;margin-top:12px}
+
+:root{--bg:#f4f6fb;--card:#fff;--ink:#1d2433;--mut:#6b7488;--line:#e4e8f1;--acc:#4f46e5;--acc2:#eef0ff;--ok:#16a34a;--bad:#dc2626;--r:16px;
+--c1:#6366f1;--c2:#f59e0b;--c3:#10b981;--c4:#ec4899;--c5:#06b6d4;--c6:#f97316;--c7:#8b5cf6;--c8:#84cc16}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+body.big{font-size:19px}
+header{background:linear-gradient(120deg,#4338ca,#6366f1 60%,#8b5cf6);color:#fff;padding:14px 24px 0}
+header h1{margin:0 0 10px;font-size:20px;font-weight:700;letter-spacing:.2px;display:flex;align-items:center;gap:10px}
+header h1 small{font-weight:400;opacity:.8;font-size:13px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{border:0;background:rgba(255,255,255,.14);color:#fff;padding:10px 18px;border-radius:12px 12px 0 0;font:inherit;font-weight:600;cursor:pointer}
+.tab:hover{background:rgba(255,255,255,.25)}.tab.on{background:var(--bg);color:var(--acc)}
+main{max-width:1280px;margin:0 auto;padding:18px 20px 40px;display:grid;gap:16px}
+.card{background:var(--card);border-radius:var(--r);box-shadow:0 1px 3px rgba(20,30,60,.07),0 4px 14px rgba(20,30,60,.04);padding:16px 18px}
+.card h2{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.8px;color:var(--mut);font-weight:700}
+.top{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.top .ttl{flex:1;min-width:260px}.ttl b{font-size:18px}.ttl p{margin:2px 0 0;color:var(--mut);font-size:13.5px}
+.controls{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end}
+.ctl label{display:block;font-size:12px;color:var(--mut);font-weight:600;margin-bottom:3px}
+select,input[type=number],input[type=text]{font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+select:focus,input:focus{outline:2px solid var(--acc2);border-color:var(--acc)}
+.btn{font:inherit;font-weight:600;border:0;border-radius:12px;padding:10px 16px;cursor:pointer;background:var(--acc2);color:var(--acc);transition:.15s}
+.btn:hover{filter:brightness(.95);transform:translateY(-1px)}.btn.pri{background:var(--acc);color:#fff}.btn.ok{background:#16a34a;color:#fff}.btn.warn{background:#fff4e5;color:#b45309}.btn.red{background:#fee2e2;color:#b91c1c}
+.btn.sm{padding:6px 12px;font-size:13px}.btn:disabled{opacity:.45;cursor:default;transform:none}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.bar .sp{flex:1}
+.clock{font-size:22px;font-weight:800;color:var(--acc);min-width:110px;text-align:right}.clock small{font-size:12px;font-weight:600;color:var(--mut);display:block;margin-top:-4px}
+.grid2{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:16px}
+@media(max-width:980px){.grid2{grid-template-columns:1fr}}
+.say{background:linear-gradient(135deg,#eef0ff,#f7f0ff);border:1px solid #dcd9ff}
+.say .run{font-weight:700;color:var(--acc);margin-bottom:6px}
+.say ul{margin:0;padding-left:18px}.say li{margin:3px 0}
+.say .end{margin-top:8px;font-weight:700;color:var(--ok)}
+.hint{color:var(--mut);font-size:13px}
+/* tabla procesos */
+table{width:100%;border-collapse:collapse}th{font-size:12px;color:var(--mut);text-align:left;padding:6px 8px;border-bottom:2px solid var(--line);white-space:nowrap}
+td{padding:8px;border-bottom:1px solid var(--line);vertical-align:middle}tr:last-child td{border-bottom:0}
+.dot{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:7px;vertical-align:-1px}
+.chip{display:inline-block;padding:3px 11px;border-radius:20px;font-size:12.5px;font-weight:700;white-space:nowrap}
+.s-Ejecutando{background:#dcfce7;color:#15803d}.s-Listo{background:#dbeafe;color:#1d4ed8}.s-Nuevo{background:#f1f5f9;color:#64748b}
+.s-Bloqueado{background:#fee2e2;color:#b91c1c}.s-Esperando.Memoria,.s-EsperandoMemoria{background:#fef3c7;color:#b45309}
+.s-EsperandoPágina{background:#ede9fe;color:#6d28d9}.s-Terminado{background:#e2e8f0;color:#334155}.s-Rechazado{background:#fecaca;color:#991b1b}
+.prog{height:8px;border-radius:5px;background:#e8ebf3;overflow:hidden;min-width:70px}.prog i{display:block;height:100%;background:var(--acc);border-radius:5px;transition:.3s}
+.legend{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+/* gantt */
+.gantt{display:flex;height:38px;border-radius:10px;overflow:hidden;background:#eef1f7}
+.gantt div{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12.5px;border-right:1px solid rgba(255,255,255,.55);overflow:hidden;transition:.2s}
+.gantt .idle{background:repeating-linear-gradient(45deg,#e5e8f0,#e5e8f0 6px,#eef1f7 6px,#eef1f7 12px);color:#94a0b8}
+.axis{display:flex;justify-content:space-between;font-size:11px;color:var(--mut);margin-top:3px}
+.queues{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.q{background:#f6f7fb;border-radius:10px;padding:6px 10px;font-size:12.5px}.q b{color:var(--mut);font-weight:600;margin-right:4px}
+/* memoria contigua */
+.memrow{display:flex;height:74px;border-radius:12px;overflow:hidden;border:2px solid #cfd5e6;background:#fff}
+.blk{display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12.5px;border-right:1px solid rgba(255,255,255,.7);overflow:hidden;white-space:nowrap;transition:.25s;line-height:1.2}
+.blk small{font-weight:500;opacity:.9;font-size:11px}
+.blk.free{background:repeating-linear-gradient(45deg,#f3f5fa,#f3f5fa 7px,#e9edf6 7px,#e9edf6 14px);color:#7d8aa6}
+.ticks{position:relative;height:18px;margin-top:3px;font-size:11px;color:var(--mut)}.ticks span{position:absolute;transform:translateX(-50%)}
+.kpis{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}.kpi{background:#f6f7fb;border-radius:12px;padding:8px 14px;min-width:120px}.kpi b{display:block;font-size:20px}.kpi span{font-size:12px;color:var(--mut)}
+/* paginación */
+.frames{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.fr{border-radius:12px;padding:8px 6px;text-align:center;color:#fff;font-weight:700;position:relative;min-height:62px;transition:.25s;font-size:13px}
+.fr small{display:block;font-weight:500;opacity:.92;font-size:11px}.fr.free{background:#f3f5fa;color:#9aa6bf;border:2px dashed #d5dbea}
+.fr.ld{outline:3px solid #f59e0b;outline-offset:-3px}.fr .d{position:absolute;top:5px;right:7px;font-size:10px}
+.mini{width:100%;font-size:13px}.mini td,.mini th{padding:4px 6px}.mini tr.bad td{color:#9aa6bf}
+.pill{display:inline-block;padding:1px 8px;border-radius:8px;background:#eef0ff;color:var(--acc);font-weight:700;font-size:12px;margin:2px}
+.cols3{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr);gap:16px}@media(max-width:980px){.cols3{grid-template-columns:1fr}}
+.tile{background:#f6f7fb;border-radius:12px;padding:10px 14px;min-width:135px;flex:1}.tile b{display:block;font-size:22px;color:var(--ink)}.tile span{font-size:12px;color:var(--mut)}
+.tiles{display:flex;gap:10px;flex-wrap:wrap}
+.modal{position:fixed;inset:0;background:rgba(20,25,45,.45);display:none;align-items:center;justify-content:center;z-index:9;padding:16px}.modal.on{display:flex}
+.modal .box{background:#fff;border-radius:18px;max-width:880px;width:100%;max-height:92vh;overflow:auto;padding:22px 24px}
+.modal h3{margin:0 0 4px;font-size:20px}
+tr.best td{background:#e8f8ee;font-weight:700}.cmpbar{height:10px;border-radius:6px;background:var(--acc);}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1d2433;color:#fff;padding:12px 20px;border-radius:14px;max-width:90vw;display:none;z-index:10;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+.manual{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.field{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin:12px 0}
+</style></head><body>
+<header>
+ <h1>🖥️ Simulador de Sistemas Operativos <small>AE4 · CPU · Memoria · Paginación · Segmentación</small></h1>
+ <div class="tabs" id="tabs"></div>
+</header>
+<main>
+ <div class="card">
+  <div class="top"><div class="ttl"><b id="sname"></b><p id="sdesc"></p></div>
+   <details class="more"><summary class="btn sm">⚙ Más</summary><div class="pop">
+    <div class="ctl"><label>Otros ejemplos</label><select id="others"></select></div>
+    <div class="ctl"><label>Velocidad del automático</label><select id="speed"><option value="1200">Lento</option><option value="600" selected>Normal</option><option value="200">Rápido</option></select></div>
+    <button class="btn sm" id="bAdd">＋ Agregar proceso</button>
+    <button class="btn sm" id="bigbtn">🔍 Letra grande (proyector)</button></div></details></div>
+  <div class="controls" id="controls" style="margin-top:12px"></div>
+  <div class="bar" style="margin-top:14px">
+   <button class="btn" id="bReset">⏮ Reiniciar</button>
+   <button class="btn" id="bBack">◀ Atrás</button>
+   <button class="btn pri" id="bStep">▶ Paso</button>
+   <button class="btn ok" id="bAuto">⏵ Automático</button>
+   <button class="btn" id="bEnd">⏭ Final</button>
+   <span class="sp"></span>
+   <button class="btn warn" id="bCmp">⚖ Comparar</button>
+   <div class="clock"><small>TIEMPO</small><span id="clock">0</span></div>
+  </div>
+ </div>
+
+ <div class="card" id="guide"></div>
+ <div class="grid2">
+  <div class="card" id="viz"></div>
+  <div class="card say" id="say"></div>
+ </div>
+
+ <div class="card"><h2>Procesos</h2><div id="ptable"></div></div>
+
+ <div class="card"><h2>Línea de tiempo de la CPU</h2><div id="gantt"></div><div id="queues" style="display:none"></div></div>
+
+ <div class="card"><h2 id="mtitle">Resultados</h2><div class="tiles" id="metrics"></div><details style="margin-top:10px"><summary class="hint" style="cursor:pointer">Ver todas las métricas</summary><div class="tiles" id="metrics2" style="margin-top:10px"></div></details></div>
+</main>
+
+<div class="modal" id="mCmp"><div class="box" id="cmpBox"></div></div>
+<div class="modal" id="mAdd"><div class="box" style="max-width:480px">
+ <h3>Nuevo proceso</h3><p class="hint">Se agrega a la simulación en curso y entra en cuanto llega su tiempo.</p>
+ <div class="field">
+  <div class="ctl"><label>Ráfaga de CPU</label><input type="number" id="aBurst" value="6" min="1" style="width:100%"></div>
+  <div class="ctl" id="aSizeW"><label>Tamaño (bytes)</label><input type="number" id="aSize" value="200" min="1" style="width:100%"></div>
+  <div class="ctl" id="aSegW" style="display:none"><label>Segmentos (bytes, separados por coma)</label><input type="text" id="aSeg" value="100,60,40" style="width:100%"></div>
+ </div>
+ <div class="bar"><span class="sp"></span><button class="btn" onclick="closeM('mAdd')">Cancelar</button><button class="btn pri" id="aOk">Agregar</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const COL=['#6366f1','#f59e0b','#10b981','#ec4899','#06b6d4','#f97316','#8b5cf6','#84cc16','#0ea5e9','#ef4444'];
+const col=pid=>COL[(pid-1)%COL.length];
+const MODS=[['cpu','① Planificación de CPU','01'],['continua','② Memoria continua','02'],['paginacion','③ Paginación · TLB · Swap','03'],['segmentacion','④ Segmentación','05'],['modelos','⑤ Comparar los 3 modelos','06']];
+const modOf=s=>({'01':'cpu','02':'continua','03':'paginacion','04':'paginacion','05':'segmentacion','06':'modelos'})[s.slice(0,2)];
+const HELP={
+cpu:{intro:'Una sola CPU y varios procesos. Cada algoritmo decide quién usa la CPU y cuándo.',
+ how:'Apretá ▶ Paso para avanzar de a un tiempo. Cambiá el algoritmo arriba y reiniciá para comparar.'},
+continua:{intro:'Cada proceso necesita un bloque continuo de memoria. Al terminar dejan huecos: eso es la fragmentación externa.',how:'Mirá la barra de memoria. Probá First / Best / Worst Fit y la compactación.'},
+paginacion:{intro:'La memoria se parte en marcos iguales. Las páginas se traen desde el disco (swap) solo cuando se usan.',how:'Apretá “Provocar fallo de página” y mirá el marco elegido, la TLB y la página desalojada.'},
+segmentacion:{intro:'Cada proceso se divide en segmentos (código, datos, pila) con base y límite. Si accede fuera del límite: violación de segmento.',how:'Apretá “Forzar violación de segmento” para ver cómo se protege la memoria.'},
+modelos:{intro:'Mismos procesos, tres formas de manejar la memoria. Cambiá el modelo y comparalos.',how:'Usá ⚖ Comparar para ver los tres lado a lado.'}};
+const CTL={
+cpu:[{k:'scheduler',l:'Algoritmo',o:[['FIFO','FIFO'],['RR','Round Robin'],['SJF','SJF'],['SRTF','SRTF']]},{k:'quantum',l:'Quantum',t:'n',min:1,show:c=>c.scheduler=='RR'}],
+continua:[{k:'fit',l:'Dónde ubicar',o:[['first','First Fit'],['best','Best Fit'],['worst','Worst Fit']]},{k:'auto_compact',l:'Compactar solo si hace falta',o:[[false,'No'],[true,'Sí']]}],
+paginacion:[{k:'repl_policy',l:'Reemplazo de páginas',o:[['FIFO','FIFO'],['LRU','LRU'],['Clock','Clock']]},{k:'page_size',l:'Tamaño de página',t:'sel',o:[[16,'16 B'],[32,'32 B'],[64,'64 B'],[128,'128 B']]},{k:'mem_size',l:'Memoria física',t:'sel',o:[[160,'160 B'],[320,'320 B'],[640,'640 B'],[1280,'1280 B']]},{k:'tlb_size',l:'Entradas de TLB',t:'sel',o:[[0,'0'],[2,'2'],[4,'4'],[6,'6'],[8,'8'],[16,'16']]}],
+segmentacion:[{k:'fit',l:'Dónde ubicar',o:[['first','First Fit'],['best','Best Fit'],['worst','Worst Fit']]},{k:'mem_size',l:'Memoria física',t:'sel',o:[[500,'500 B'],[750,'750 B'],[1000,'1000 B'],[1500,'1500 B']]}],
+modelos:[{k:'mode',l:'Modelo de memoria',o:[['contiguous','Memoria continua'],['paging','Paginación'],['segmentation','Segmentación']]}]};
+const CMP={cpu:[['scheduler','Algoritmos'],['quantum','Quantum']],continua:[['fit','First / Best / Worst']],paginacion:[['repl_policy','Reemplazo'],['page_size','Tamaño de página'],['mem_size','Memoria física'],['tlb_size','Tamaño de TLB'],['tlb_policy','Política de TLB']],segmentacion:[['fit','First / Best / Worst']],modelos:[['mode','Los 3 modelos']]};
+const MET={
+cpu:[['espera_prom','Espera promedio','Ticks que un proceso espera en la cola de listos'],['retorno_prom','Retorno promedio','Desde que llega hasta que termina'],['respuesta_prom','Respuesta promedio','Desde que llega hasta que corre por primera vez'],['cpu_uso','Uso de CPU %'],['cambios_contexto','Cambios de contexto']],
+continua:[['espera_mem_prom','Espera por memoria'],['frag_ext_prom','Frag. externa prom. %','Memoria libre pero partida en huecos chicos'],['frag_ext_max','Frag. externa máx. %'],['frag_int_prom','Frag. interna prom. %'],['ocupacion_prom','Ocupación prom. %'],['retorno_prom','Retorno promedio']],
+paginacion:[['fallos_pagina','Fallos de página'],['tasa_fallos','Tasa de fallos %'],['tlb_hit','Aciertos de TLB %'],['eat_ns','Tiempo efectivo de acceso (ns)','EAT'],['swap_in','Páginas leídas de swap'],['swap_out','Páginas escritas a swap'],['retorno_prom','Retorno promedio']],
+segmentacion:[['espera_mem_prom','Espera por memoria'],['frag_ext_prom','Frag. externa prom. %'],['violaciones','Violaciones de segmento'],['ocupacion_prom','Ocupación prom. %'],['retorno_prom','Retorno promedio']],
+modelos:[['retorno_prom','Retorno promedio'],['espera_mem_prom','Espera por memoria'],['frag_ext_prom','Frag. externa prom. %'],['frag_int_prom','Frag. interna prom. %'],['fallos_pagina','Fallos de página'],['cpu_uso','Uso de CPU %']]};
+
+const GUIDE={
+cpu:[
+ {t:'Mostrar los procesos y la CPU',d:'Hay 5 procesos y una sola CPU. El Gantt de abajo muestra quién la usa en cada momento.',a:[{reset:1},{step:9}]},
+ {t:'Round Robin y la E/S',d:'Cada proceso usa la CPU como máximo 3 unidades (quantum) y vuelve al final de la cola. P3 pide E/S y pasa a Bloqueado.',a:[{reset:1},{step:12}]},
+ {t:'Cambiar el algoritmo: SRTF',d:'Con SRTF siempre corre el que tiene menos trabajo restante: baja la espera promedio (mirá Resultados).',a:[{cfg:{scheduler:'SRTF'}},{run:1}]},
+ {t:'Comparar los 4 algoritmos',d:'Mismos procesos, FIFO / RR / SJF / SRTF. El mejor aparece resaltado en verde.',a:[{compare:'scheduler'}]}],
+continua:[
+ {t:'Procesos que dejan huecos',d:'Cada proceso ocupa un bloque continuo. Cuando terminan los cortos quedan huecos: hay memoria libre pero partida (fragmentación externa).',a:[{cfg:{fit:'first',auto_compact:false}},{step:12}]},
+ {t:'El proceso R4 no entra',d:'R4 necesita 426 bytes seguidos y el mayor hueco es de 300: espera en la cola aunque haya 959 libres.',a:[{reset:1},{step:12}]},
+ {t:'Best Fit lo resuelve',d:'Best Fit elige el hueco más justo y deja el grande libre: R4 entra. Se prueba cambiando First/Best/Worst arriba.',a:[{cfg:{fit:'best'}},{step:12}]},
+ {t:'Compactación',d:'Con “Compactar solo si hace falta” = Sí, el sistema junta todos los huecos en uno y R4 puede entrar. Comparar muestra el efecto.',a:[{compare:'fit'}]}],
+paginacion:[
+ {t:'Memoria en marcos y carga bajo demanda',d:'La memoria física son 10 marcos. Las páginas se traen del swap solo cuando se usan: los primeros accesos son fallos de página.',a:[{cfg:{repl_policy:'LRU'}},{step:8}]},
+ {t:'Provocar un fallo de página',d:'Se pide una página que no está en RAM: se busca marco, si está lleno se elige una víctima (según FIFO/LRU/Clock) y se carga desde swap. Mirá el cuadro de la derecha.',a:[{reset:1},{step:12},{manual:'fault'}]},
+ {t:'Cambiar el algoritmo de reemplazo',d:'Misma carga con FIFO: más fallos que LRU. Comparar muestra FIFO 102 · LRU 91 · Clock 88.',a:[{cfg:{repl_policy:'FIFO'}},{run:1},{compare:'repl_policy'}]},
+ {t:'Cambiar tamaño de página o de memoria',d:'Probar tamaño de página 128 o memoria de 320: cambian los fallos y el tiempo de acceso. Usar los desplegables o la pestaña Comparar.',a:[{compare:'mem_size'}]}],
+segmentacion:[
+ {t:'Procesos divididos en segmentos',d:'Cada proceso tiene código, datos y pila. Cada segmento ocupa un bloque propio y tiene base y límite (tablas de abajo).',a:[{cfg:{fit:'best'}},{step:14}]},
+ {t:'Violación de segmento',d:'Se pide un desplazamiento mayor que el límite de la pila: el sistema lo detecta y aborta el proceso. Protección de memoria.',a:[{reset:1},{step:14},{manual:'violation'}]},
+ {t:'First / Best / Worst Fit',d:'Mismo escenario con las tres políticas. Cambia cuánto esperan los procesos por memoria.',a:[{compare:'fit'}]}],
+modelos:[
+ {t:'Memoria continua',d:'Mismos procesos, un bloque continuo por proceso: hay fragmentación externa y procesos que esperan.',a:[{cfg:{mode:'contiguous'}},{run:1}]},
+ {t:'Paginación',d:'Ahora con páginas: nadie espera memoria, pero aparecen fallos de página y tráfico de swap.',a:[{cfg:{mode:'paging'}},{run:1}]},
+ {t:'Segmentación',d:'Segmentos lógicos con base y límite: protege pero fragmenta como la continua.',a:[{cfg:{mode:'segmentation'}},{run:1}]},
+ {t:'Comparación lado a lado',d:'Los tres juntos, con el mejor resaltado.',a:[{compare:'mode'}]}]};
+let gOpen=true,gStep=-1;
+function guide(){
+  const L=GUIDE[mod]||[];
+  $('guide').innerHTML=`<div class="bar"><b style="color:var(--acc)">🎓 Guía para explicarlo:</b>`+L.map((g,i)=>`<button class="btn sm ${i==gStep?'pri':''}" onclick="gDo(${i})">${i+1}. ${g.t}</button>`).join('')+`</div>`;
+}
+async function gDo(i){
+  gStep=i;stopAuto();lastMsg='';
+  for(const a of GUIDE[mod][i].a){
+    if(a.reset)S=await api('reset',{});
+    else if(a.cfg){S=await api('config',a.cfg);S=await api('reset',{})}
+    else if('step' in a){if(a.step>0)S=await api('step',{n:a.step})}
+    else if(a.run)S=await api('run',{});
+    else if(a.manual){S=await api('manual',{what:a.manual});lastMsg=S.msg}
+    else if(a.compare){render();$('mCmp').classList.add('on');await cmp(a.compare);return}
+  }
+  render();
+}
+let lastMsg='',S=null,mod='cpu',timer=null,tabSel=null,pageProc=null;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const fmt=v=>v==null?'—':(typeof v=='number'&&!Number.isInteger(v)?v.toFixed(2):v);
+async function api(path,body){const r=await fetch('/api/'+path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});const j=await r.json();if(j.error){toast('⚠ '+j.error);throw j.error}return j}
+function toast(t,ms=4200){const e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',ms)}
+function closeM(id){$(id).classList.remove('on')}
+async function act(path,body){stopAuto();if(path!='step'&&path!='back')lastMsg='';S=await api(path,body||{});render()}
+async function load(m){stopAuto();lastMsg='';gStep=-1;S=await api('module',{module:m});render()}
+
+function buildTabs(){$('tabs').innerHTML=MODS.map(([k,t])=>`<button class="tab ${k==mod?'on':''}" onclick="mod='${k}';load('${k}')">${t}</button>`).join('')}
+function buildControls(){
+  const c=S.cfg;
+  $('controls').innerHTML=(CTL[mod]||[]).filter(d=>!d.show||d.show(c)).map(d=>{
+    let inner;
+    if(d.t=='n') inner=`<input type="number" min="${d.min}" value="${c[d.k]}" style="width:80px" data-k="${d.k}">`;
+    else{let o=d.o.slice();if(d.t=='sel'&&!o.some(x=>x[0]==c[d.k]))o.push([c[d.k],c[d.k]+' B']),o.sort((a,b)=>a[0]-b[0]);
+      inner=`<select data-k="${d.k}">${o.map(([v,t])=>`<option value="${v}" ${String(v)==String(c[d.k])?'selected':''}>${t}</option>`).join('')}</select>`}
+    return `<div class="ctl"><label>${d.l}</label>${inner}</div>`}).join('');
+  document.querySelectorAll('#controls [data-k]').forEach(e=>e.onchange=()=>{
+    let v=e.value;const k=e.dataset.k;if(v==='true')v=true;else if(v==='false')v=false;else if(!isNaN(v)&&v!=='')v=Number(v);
+    act('config',{[k]:v})});
+}
+function gantt(){
+  const T=Math.max(S.t,1),g=S.gantt;
+  $('gantt').innerHTML=g.length?`<div class="gantt">${g.map(([a,b,n])=>{const w=(b-a)/T*100;const pid=n?parseInt(n.slice(1)):0;
+   return `<div class="${n?'':'idle'}" style="width:${w}%;${n?`background:${col(pid)}`:''}" title="${n||'CPU ociosa'}: ${a}→${b}">${w>2.6?(n||'·'):''}</div>`}).join('')}</div>
+   <div class="axis"><span>0</span><span>${Math.round(T/2)}</span><span>${T}</span></div>`:'<p class="hint">Todavía no corrió nada. Apretá ▶ Paso.</p>';
+
+}
+function ptable(){
+  const m=S.cfg.mode;
+  let h=`<table><tr><th>Proceso</th><th>Estado</th><th>Avance</th>${m!='none'?'<th>En memoria</th>':''}</tr>`;
+  for(const p of S.procs){
+    const done=p.rafaga-p.restante,pct=p.rafaga?done/p.rafaga*100:0;
+    h+=`<tr><td><span class="dot" style="background:${col(p.pid)}"></span><b>${p.nombre}</b></td><td><span class="chip s-${p.estado.replace(/ /g,'')}">${p.estado}</span>${p.nota?` <span class="hint">(${esc(p.nota)})</span>`:''}</td>
+    <td style="min-width:150px"><div class="prog"><i style="width:${pct}%;background:${col(p.pid)}"></i></div></td>${m!='none'?`<td>${esc(p.memoria)}</td>`:''}</tr>`}
+  $('ptable').innerHTML=h+'</table>';
+}
+function say(){
+  const run=S.procs.find(p=>p.estado=='Ejecutando');
+  let h=`<h2>¿Qué está pasando?</h2>`;
+  const gs=(GUIDE[mod]||[])[gStep];if(gs)h+=`<div style="background:#fff;border-radius:12px;padding:10px 12px;margin-bottom:12px;border-left:4px solid var(--acc)"><b>🎓 ${gStep+1}. ${gs.t}</b><div style="margin-top:3px">${gs.d}</div></div>`;
+  if(S.t==0)h+=`<p><b>${HELP[mod].intro}</b></p><p class="hint">${HELP[mod].how}</p>`;
+  else{h+=`<div class="run">${run?`⚙ En la CPU ahora: <span style="color:${col(run.pid)}">${run.nombre}</span>`:(S.queues.Listos.length?'⏭ La CPU quedó libre: en el próximo paso se elige al siguiente de la cola':'💤 La CPU está libre (nadie listo)')}</div>`;
+    h+=S.events.length?`<ul>${S.events.slice(0,3).map(e=>`<li>${esc(e)}</li>`).join('')}</ul>`+(S.events.length>3?`<p class="hint">… y ${S.events.length-3} más</p>`:''):`<p class="hint">Sin novedades: el proceso sigue ejecutando.</p>`;
+  if(S.finished)h+=`<div class="end">🏁 Terminó la simulación. Mirá los resultados abajo o apretá ⚖ Comparar.</div>`}
+  if(lastMsg)h+=`<div style="margin-top:12px;padding:10px 12px;background:#fff;border-left:4px solid var(--acc);border-radius:8px"><b>Último acceso manual:</b><br>${esc(lastMsg)}</div>`;
+  if(S.can_manual){const seg=S.cfg.mode=='segmentation';
+    h+=`<div class="manual">${seg?`<button class="btn red sm" onclick="man('violation')">⚡ Forzar violación de segmento</button><button class="btn sm" onclick="man('ok')">Acceso válido</button>`
+     :`<button class="btn red sm" onclick="man('fault')">⚡ Provocar fallo de página</button><button class="btn sm" onclick="man('hit')">Acceder a página cargada</button>`}</div>`}
+  $('say').innerHTML=h;
+}
+async function man(w){S=await api('manual',{what:w});lastMsg=S.msg;render()}
+function viz(){
+  const m=S.mem,cfg=S.cfg;let h='';
+  if(!m){h=`<h2>Planificación</h2><p class="hint">Este módulo solo simula la CPU. La línea de tiempo (abajo) muestra quién usa la CPU en cada momento.</p><div class="legend">`+S.procs.map(p=>`<span class="chip" style="background:${col(p.pid)}22;color:${col(p.pid)}">${p.nombre}: ráfaga ${p.rafaga}</span>`).join('')+`</div><div id="miniq" style="margin-top:18px"></div>`;
+    $('viz').innerHTML=h;
+    const run=S.procs.find(p=>p.estado=='Ejecutando');
+    $('miniq').innerHTML=`<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap"><div style="text-align:center"><div class="hint">CPU</div><div style="width:110px;height:110px;border-radius:24px;background:${run?col(run.pid):'#e5e8f0'};color:#fff;font-size:32px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px ${run?col(run.pid)+'55':'transparent'};transition:.3s">${run?run.nombre:'·'}</div></div>
+     <div><div class="hint">Cola de listos</div><div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">${(S.queues.Listos.length?S.queues.Listos:[]).map(n=>`<div style="width:54px;height:54px;border-radius:14px;background:${col(parseInt(n.slice(1)))};color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center">${n}</div>`).join('')||'<span class="hint">vacía</span>'}</div></div>
+     <div><div class="hint">Bloqueados (E/S)</div><div style="display:flex;gap:6px;margin-top:6px">${(S.queues['Bloqueados (E/S)']).map(n=>`<div style="width:54px;height:54px;border-radius:14px;background:#fee2e2;color:#b91c1c;font-weight:800;display:flex;align-items:center;justify-content:center">${n}</div>`).join('')||'<span class="hint">ninguno</span>'}</div></div></div>`;return}
+  if(m.kind=='contiguous'||m.kind=='segmentation'){
+    const T=m.total;
+    h=`<h2>${m.kind=='segmentation'?'Memoria con segmentos':'Memoria física'} · ${T} bytes</h2><div class="memrow">${m.blocks.map(b=>`<div class="blk ${b.free?'free':''}" style="width:${b.size/T*100}%;${b.free?'':`background:${col(b.pid)}`}" title="${b.free?'Hueco libre':b.name+(b.label&&b.label!=b.name?' · '+b.label:'')}: ${b.start}→${b.start+b.size}">${b.size/T>0.05?(b.free?'libre':b.name)+`<small>${b.label&&!b.free&&b.label!=b.name?b.label+' · ':''}${b.size}</small>`:''}</div>`).join('')}</div>
+    <div class="ticks">${m.blocks.filter(b=>b.size/T>0.045||b.start==0).map(b=>`<span style="left:${b.start/T*100}%">${b.start}</span>`).join('')}<span style="left:100%">${T}</span></div>`;
+    const mt=S.metrics;h+=`<div class="kpis"><div class="kpi"><b>${fmt(mt.mem_libre)}</b><span>bytes libres</span></div><div class="kpi"><b>${fmt(mt.mayor_libre)}</b><span>hueco libre más grande</span></div><div class="kpi"><b>${fmt(mt.frag_externa)}%</b><span title="1 − hueco mayor / libre total">fragmentación externa</span></div>${cfg.partition=='fixed'?`<div class="kpi"><b>${fmt(mt.frag_interna)}%</b><span>fragmentación interna</span></div>`:''}</div>`;
+    if(m.kind=='contiguous')h+=`<div class="manual"><button class="btn warn sm" onclick="act('compact')">🧹 Compactar memoria ahora</button><span class="hint">Junta todos los huecos en uno solo.</span></div>`;
+    if(m.kind=='segmentation'&&m.tables.length)h+=`<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:14px">`+m.tables.map(t=>`<div><b style="color:${col(t.pid)}">Tabla de segmentos de ${t.name}</b><table class="mini"><tr><th>#</th><th>Segmento</th><th>Base</th><th>Límite</th></tr>${t.rows.map(r=>`<tr><td>${r.seg}</td><td>${r.name}</td><td>${r.base}</td><td>${r.limit}</td></tr>`).join('')}</table></div>`).join('')+`</div><p class="hint">Dirección física = base + desplazamiento, siempre que desplazamiento &lt; límite.</p>`;
+    $('viz').innerHTML=h;return}
+  // paginación
+  const run=S.procs.find(p=>p.estado=='Ejecutando');
+  if(!pageProc||!m.tables.some(t=>t.name==pageProc))pageProc=null;
+  const sel=pageProc||(run&&m.tables.some(t=>t.name==run.nombre)?run.nombre:(m.tables[0]||{}).name);
+  const tb=m.tables.find(t=>t.name==sel);
+  h=`<h2>Memoria física: ${m.frames.length} marcos de ${m.page_size} bytes</h2><div class="frames">${m.frames.map(f=>f.free?`<div class="fr free">Marco ${f.f}<small>libre</small></div>`:`<div class="fr ${f.loading?'ld':''}" style="background:${col(f.pid)}">${f.name} · pág ${f.page}<small>Marco ${f.f}${f.loading?' · cargando':''}</small>${f.dirty?'<span class="d" title="modificada">✎</span>':''}</div>`).join('')}</div>
+  <p class="hint">✎ = página modificada (se escribe a swap si la desalojan). Borde naranja = cargándose desde swap. Swap en uso: ${m.swap_used}/${m.swap_total} páginas.</p>
+  <div class="cols3" style="margin-top:14px"><div><b>TLB</b> <span class="hint">(${m.tlb.length}/${m.tlb_size})</span>${m.tlb_size?`<table class="mini"><tr><th>Proc</th><th>Pág</th><th>Marco</th></tr>${m.tlb.map(e=>`<tr><td>${e.name}</td><td>${e.page}</td><td>${e.frame}</td></tr>`).join('')||'<tr><td colspan=3 class="hint">vacía</td></tr>'}</table>`:'<p class="hint">Desactivada (0 entradas)</p>'}</div>
+  <div><b>Orden de reemplazo</b> <span class="hint">(${m.policy})</span><table class="mini">${m.order.map((e,i)=>`<tr><td>${i==0&&m.policy!='Clock'?'👉 ':''}${e.name} pág ${e.page}</td><td class="hint">${e.note}</td></tr>`).join('')||'<tr><td class="hint">—</td></tr>'}</table><p class="hint">${m.policy=='FIFO'?'Sale la más antigua (arriba).':m.policy=='LRU'?'Sale la menos usada (arriba).':'La manecilla ◄ da segunda oportunidad si R=1.'}</p></div>
+  <details class="det" ${window._pt?'open':''} ontoggle="window._pt=this.open"><summary>Ver tabla de páginas</summary><div><b>Proceso:</b> <select id="pp">${m.tables.map(t=>`<option ${t.name==sel?'selected':''}>${t.name}</option>`).join('')}</select>
+  <table class="mini"><tr><th>Pág</th><th>Marco</th><th>Estado</th></tr>${tb?tb.rows.map(r=>`<tr class="${r.valid||r.loading?'':'bad'}"><td>${r.page}</td><td>${r.frame??'—'}</td><td>${r.loading?'⏳ cargando':r.valid?'en RAM'+(r.dirty?' ✎':''):'en swap'}</td></tr>`).join(''):''}</table></div></details></div>`;
+  $('viz').innerHTML=h;$('pp').onchange=e=>{pageProc=e.target.value;viz()};
+}
+function metrics(){
+  const L=(MET[mod]||[]).filter(([k])=>S.metrics[k]!==undefined);$('mtitle').textContent='Resultados'+(S.finished?'':' (hasta ahora)');
+  const t=([k,l,h])=>`<div class="tile" ${h?`title="${h}"`:''}><b>${fmt(S.metrics[k])}</b><span>${l}</span></div>`;
+  $('metrics').innerHTML=L.slice(0,3).map(t).join('');$('metrics2').innerHTML=L.slice(3).map(t).join('');
+}
+function render(){
+  const m=modOf(S.stem);if(m!=mod){mod=m}
+  buildTabs();$('sname').textContent=S.name;$('sdesc').textContent=S.description.replace(/\s+/g,' ').split(/\.\s/).slice(0,2).join('. ').replace(/\.?$/,'.');
+  buildControls();$('clock').textContent=S.t;
+  guide();viz();say();ptable();gantt();metrics();
+  
+  $('aSizeW').style.display=S.cfg.mode=='segmentation'?'none':'';$('aSegW').style.display=S.cfg.mode=='segmentation'?'':'none';
+  $('bStep').disabled=$('bEnd').disabled=$('bAuto').disabled=S.finished&&!timer;$('bBack').disabled=S.t==0;
+  $('bCmp').style.display=''; 
+}
+function stopAuto(){if(timer){clearInterval(timer);timer=null;$('bAuto').textContent='⏵ Automático'}}
+$('bAuto').onclick=()=>{if(timer){stopAuto();return}
+  $('bAuto').textContent='⏸ Pausar';timer=setInterval(async()=>{S=await api('step',{n:1});render();if(S.finished)stopAuto();else{$('bAuto').textContent='⏸ Pausar'}},+$('speed').value)};
+$('speed').onchange=()=>{if(timer){stopAuto();$('bAuto').click()}};
+$('bStep').onclick=()=>act('step',{n:1});$('bBack').onclick=()=>act('back');$('bReset').onclick=()=>act('reset');$('bEnd').onclick=()=>act('run');
+$('bigbtn').onclick=()=>document.body.classList.toggle('big');
+$('bAdd').onclick=()=>$('mAdd').classList.add('on');
+$('aOk').onclick=async()=>{closeM('mAdd');const segs=$('aSeg').value.split(',').map(x=>+x.trim()).filter(x=>x>0);
+  const d={burst:+$('aBurst').value,size:+$('aSize').value};if(S.cfg.mode=='segmentation')d.segments=segs;
+  await act('add',d);toast('Proceso agregado: aparece en la tabla y entra al llegar su tiempo.')};
+async function loadOthers(){const r=await api('modules');$('others').innerHTML='<option value="">Elegir…</option>'+r.others.map(([s,n])=>`<option value="${s}">${n}</option>`).join('');
+  $('others').onchange=async e=>{if(!e.target.value)return;stopAuto();gStep=-1;S=await api('load',{stem:e.target.value});e.target.value='';render()}}
+// comparar
+$('bCmp').onclick=()=>{$('mCmp').classList.add('on');cmp((CMP[mod]||CMP.cpu)[0][0])};
+$('mCmp').onclick=e=>{if(e.target.id=='mCmp')closeM('mCmp')};$('mAdd').onclick=e=>{if(e.target.id=='mAdd')closeM('mAdd')};
+const HI=new Set(['tlb_hit','cpu_uso','ocupacion_prom','throughput','terminados']);
+async function cmp(param){
+  const r=await api('compare',{param});const list=CMP[mod]||CMP.cpu;
+  const best=r.values[r.best];
+  $('cmpBox').innerHTML=`<div class="bar"><h3>⚖ Comparación con los mismos procesos</h3><span class="sp"></span><button class="btn sm" onclick="closeM('mCmp')">✕ Cerrar</button></div>
+   <div class="bar" style="margin:10px 0">${list.map(([k,t])=>`<button class="btn sm ${k==param?'pri':''}" onclick="cmp('${k}')">${t}</button>`).join('')}</div>
+   <p>🏆 Mejor en <b>${r.labels[r.main]}</b>: <b>${esc(best)}</b> (${HI.has(r.main)?'más alto':'más bajo'} es mejor).</p>
+   <table><tr><th>${param}</th>${r.cols.map(c=>`<th class="${c==r.main?'':''}">${r.labels[c]}${c==r.main?' ★':''}</th>`).join('')}</tr>
+   ${r.rows.map((row,i)=>`<tr class="${i==r.best?'best':''}"><td><b>${esc(r.values[i])}</b></td>${row.map(v=>`<td>${fmt(v)}</td>`).join('')}</tr>`).join('')}</table>
+   <h2 style="margin-top:16px">${r.labels[r.main]}</h2>${(()=>{const i=r.cols.indexOf(r.main),mx=Math.max(...r.rows.map(x=>x[i]||0),1e-9);return r.rows.map((x,j)=>`<div style="display:flex;align-items:center;gap:10px;margin:5px 0"><span style="width:90px"><b>${esc(r.values[j])}</b></span><div style="flex:1"><div class="cmpbar" style="width:${Math.max(2,(x[i]||0)/mx*100)}%;background:${j==r.best?'#16a34a':'#a5acf5'}"></div></div><span>${fmt(x[i])}</span></div>`).join('')})()}
+   <p class="hint">Todas las corridas usan exactamente los mismos procesos y los mismos accesos (misma semilla), por eso la comparación es justa.</p>`;
+}
+document.addEventListener('keydown',e=>{if(e.target.matches('input,select'))return;
+  if(e.key==' '||e.key=='ArrowRight'){e.preventDefault();act('step',{n:1})}else if(e.key=='ArrowLeft')act('back');else if(e.key=='a')$('bAuto').click();else if(e.key=='r')act('reset')});
+loadOthers();api('state').then(s=>{S=s;mod=modOf(S.stem);render()});
+</script></body></html>

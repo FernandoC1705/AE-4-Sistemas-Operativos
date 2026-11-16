@@ -1,0 +1,12 @@
+{
+  "name": "01 - Planificación de CPU",
+  "description": "Cinco procesos con distintas llegadas y ráfagas (uno con E/S). Sirve para comparar FIFO, RR, SJF y SRTF. Modo sin memoria.",
+  "config": {"mode": "none", "scheduler": "RR", "quantum": 3},
+  "processes": [
+    {"pid": 1, "name": "P1", "arrival": 0, "burst": 8},
+    {"pid": 2, "name": "P2", "arrival": 1, "burst": 4},
+    {"pid": 3, "name": "P3", "arrival": 2, "burst": 9, "io": [[3, 4]]},
+    {"pid": 4, "name": "P4", "arrival": 3, "burst": 5},
+    {"pid": 5, "name": "P5", "arrival": 6, "burst": 2}
+  ]
+}

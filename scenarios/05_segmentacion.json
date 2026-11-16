@@ -1,0 +1,143 @@
+{
+  "name": "05 - Segmentación pura",
+  "description": "Procesos con tres segmentos (código, datos, pila) ubicados con First/Best/Worst Fit en los huecos de una memoria de 1000 bytes. Algunos procesos esperan memoria al llegar (fragmentación externa). P5 hace un acceso fuera de límite (pila, desplazamiento 60 con límite 50): violación de segmento y aborto del proceso. Probar fit=first/best/worst y auto_compact=true.",
+  "config": {
+    "mode": "segmentation",
+    "scheduler": "RR",
+    "quantum": 3,
+    "mem_size": 1000,
+    "fit": "best",
+    "auto_compact": false,
+    "seed": 3,
+    "locality": 0.7
+  },
+  "processes": [
+    {
+      "pid": 1,
+      "name": "P1",
+      "arrival": 0,
+      "burst": 9,
+      "segments": [
+        [
+          "codigo",
+          130
+        ],
+        [
+          "datos",
+          70
+        ],
+        [
+          "pila",
+          230
+        ]
+      ]
+    },
+    {
+      "pid": 2,
+      "name": "P2",
+      "arrival": 0,
+      "burst": 12,
+      "segments": [
+        [
+          "codigo",
+          220
+        ],
+        [
+          "datos",
+          210
+        ],
+        [
+          "pila",
+          240
+        ]
+      ]
+    },
+    {
+      "pid": 3,
+      "name": "P3",
+      "arrival": 3,
+      "burst": 8,
+      "segments": [
+        [
+          "codigo",
+          90
+        ],
+        [
+          "datos",
+          90
+        ],
+        [
+          "pila",
+          130
+        ]
+      ]
+    },
+    {
+      "pid": 4,
+      "name": "P4",
+      "arrival": 5,
+      "burst": 5,
+      "segments": [
+        [
+          "codigo",
+          260
+        ],
+        [
+          "datos",
+          180
+        ],
+        [
+          "pila",
+          240
+        ]
+      ]
+    },
+    {
+      "pid": 5,
+      "name": "P5",
+      "arrival": 5,
+      "burst": 6,
+      "segments": [
+        [
+          "codigo",
+          100
+        ],
+        [
+          "datos",
+          100
+        ],
+        [
+          "pila",
+          50
+        ]
+      ],
+      "accesses": [
+        [
+          "codigo",
+          10
+        ],
+        [
+          "datos",
+          50
+        ],
+        [
+          "pila",
+          20
+        ],
+        [
+          "pila",
+          60,
+          "W"
+        ],
+        [
+          "datos",
+          5
+        ],
+        [
+          "codigo",
+          1
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "name": "04 - Cadena de referencias de Belady",
+  "description": "Un solo proceso con la cadena de páginas 1,2,3,4,1,2,5,1,2,3,4,5 (accesos explícitos), sin TLB. Con 3 marcos: FIFO=9 fallos, LRU=10. Con 4 marcos: FIFO=10 (¡anomalía de Belady!), LRU=8. Cambiar mem_size entre 30 y 40 para verlo.",
+  "config": {
+    "mode": "paging",
+    "scheduler": "FIFO",
+    "mem_size": 30,
+    "page_size": 10,
+    "tlb_size": 0,
+    "repl_policy": "FIFO",
+    "swap_size": 1000
+  },
+  "processes": [
+    {
+      "pid": 1,
+      "name": "P1",
+      "arrival": 0,
+      "burst": 12,
+      "size": 60,
+      "accesses": [
+        10,
+        20,
+        30,
+        40,
+        10,
+        20,
+        50,
+        10,
+        20,
+        30,
+        40,
+        50
+      ]
+    }
+  ]
+}

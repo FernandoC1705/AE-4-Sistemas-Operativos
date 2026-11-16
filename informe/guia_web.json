@@ -1,0 +1,88 @@
+{
+ "cpu": [
+  [
+   "Mostrar los procesos y la CPU",
+   "Hay 5 procesos y una sola CPU. El Gantt de abajo muestra quién la usa en cada momento."
+  ],
+  [
+   "Round Robin y la E/S",
+   "Cada proceso usa la CPU como máximo 3 unidades (quantum) y vuelve al final de la cola. P3 pide E/S y pasa a Bloqueado."
+  ],
+  [
+   "Cambiar el algoritmo: SRTF",
+   "Con SRTF siempre corre el que tiene menos trabajo restante: baja la espera promedio (mirá Resultados)."
+  ],
+  [
+   "Comparar los 4 algoritmos",
+   "Mismos procesos, FIFO / RR / SJF / SRTF. El mejor aparece resaltado en verde."
+  ]
+ ],
+ "continua": [
+  [
+   "Procesos que dejan huecos",
+   "Cada proceso ocupa un bloque continuo. Cuando terminan los cortos quedan huecos: hay memoria libre pero partida (fragmentación externa)."
+  ],
+  [
+   "El proceso R4 no entra",
+   "R4 necesita 426 bytes seguidos y el mayor hueco es de 300: espera en la cola aunque haya 959 libres."
+  ],
+  [
+   "Best Fit lo resuelve",
+   "Best Fit elige el hueco más justo y deja el grande libre: R4 entra. Se prueba cambiando First/Best/Worst arriba."
+  ],
+  [
+   "Compactación",
+   "Con “Compactar solo si hace falta” = Sí, el sistema junta todos los huecos en uno y R4 puede entrar. Comparar muestra el efecto."
+  ]
+ ],
+ "paginacion": [
+  [
+   "Memoria en marcos y carga bajo demanda",
+   "La memoria física son 10 marcos. Las páginas se traen del swap solo cuando se usan: los primeros accesos son fallos de página."
+  ],
+  [
+   "Provocar un fallo de página",
+   "Se pide una página que no está en RAM: se busca marco, si está lleno se elige una víctima (según FIFO/LRU/Clock) y se carga desde swap. Mirá el cuadro de la derecha."
+  ],
+  [
+   "Cambiar el algoritmo de reemplazo",
+   "Misma carga con FIFO: más fallos que LRU. Comparar muestra FIFO 102 · LRU 91 · Clock 88."
+  ],
+  [
+   "Cambiar tamaño de página o de memoria",
+   "Probar tamaño de página 128 o memoria de 320: cambian los fallos y el tiempo de acceso. Usar los desplegables o la pestaña Comparar."
+  ]
+ ],
+ "segmentacion": [
+  [
+   "Procesos divididos en segmentos",
+   "Cada proceso tiene código, datos y pila. Cada segmento ocupa un bloque propio y tiene base y límite (tablas de abajo)."
+  ],
+  [
+   "Violación de segmento",
+   "Se pide un desplazamiento mayor que el límite de la pila: el sistema lo detecta y aborta el proceso. Protección de memoria."
+  ],
+  [
+   "First / Best / Worst Fit",
+   "Mismo escenario con las tres políticas. Cambia cuánto esperan los procesos por memoria."
+  ]
+ ],
+ "modelos": [
+  [
+   "Memoria continua",
+   "Mismos procesos, un bloque continuo por proceso: hay fragmentación externa y procesos que esperan."
+  ],
+  [
+   "Paginación",
+   "Ahora con páginas: nadie espera memoria, pero aparecen fallos de página y tráfico de swap."
+  ],
+  [
+   "Segmentación",
+   "Segmentos lógicos con base y límite: protege pero fragmenta como la continua."
+  ],
+  [
+   "Comparación lado a lado",
+   "Los tres juntos, con el mejor resaltado."
+  ]
+ ]
+}

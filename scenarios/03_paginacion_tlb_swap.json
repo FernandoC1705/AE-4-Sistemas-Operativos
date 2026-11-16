@@ -1,0 +1,50 @@
+{
+  "name": "03 - Paginación con TLB y swap",
+  "description": "4 procesos (300, 420, 250 y 500 bytes = 24 páginas virtuales) comparten una memoria física de 10 marcos de 64 bytes: memoria virtual con carga bajo demanda y swap. Accesos generados con localidad (semilla fija, misma traza para todas las políticas). Comparar repl_policy (FIFO/LRU/Clock), tlb_policy, tlb_size, page_size y mem_size.",
+  "config": {
+    "mode": "paging",
+    "scheduler": "RR",
+    "quantum": 6,
+    "mem_size": 640,
+    "page_size": 64,
+    "tlb_size": 6,
+    "tlb_policy": "LRU",
+    "repl_policy": "LRU",
+    "swap_size": 4096,
+    "seed": 7,
+    "locality": 0.9,
+    "write_prob": 0.3,
+    "swap_in_ticks": 3,
+    "swap_out_ticks": 2
+  },
+  "processes": [
+    {
+      "pid": 1,
+      "name": "P1",
+      "arrival": 0,
+      "burst": 60,
+      "size": 300
+    },
+    {
+      "pid": 2,
+      "name": "P2",
+      "arrival": 0,
+      "burst": 80,
+      "size": 420
+    },
+    {
+      "pid": 3,
+      "name": "P3",
+      "arrival": 2,
+      "burst": 50,
+      "size": 250
+    },
+    {
+      "pid": 4,
+      "name": "P4",
+      "arrival": 4,
+      "burst": 70,
+      "size": 500
+    }
+  ]
+}
